@@ -1,8 +1,12 @@
 import React from 'react';
 import { Navbar, Nav, Form } from 'react-bootstrap';
 import { NavLink } from 'react-router-dom';
+import { useStateValue } from '../../contexts/state-context';
 
 const NavigationBar = () => {
+
+    const [{ token }, dispatch] = useStateValue();
+
     return (
         <Navbar bg="dark" variant="dark">
             <Navbar.Brand href="#home">Navbar</Navbar.Brand>
@@ -11,7 +15,11 @@ const NavigationBar = () => {
                 <NavLink to="/events">Events</NavLink>
             </Nav>
             <Form inline>
-                <NavLink to="/auth">Login</NavLink>
+                {token ?
+                    <NavLink to="/logout">Logout</NavLink>
+                    :
+                    <NavLink to="/auth">Login</NavLink>
+                }
             </Form>
         </Navbar>
     )

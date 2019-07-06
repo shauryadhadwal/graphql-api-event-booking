@@ -1,11 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Form, Button, Container, Row, Col, Tabs, Tab } from 'react-bootstrap';
-import './Auth.css';
 import Axios from 'axios';
+import { useStateValue } from '../../contexts/state-context';
+
+import './Auth.css';
 
 const AuthPage = () => {
 
-    const [isSignup, setIsSignup] = useState(true);
+    const [isSignup, setIsSignup] = useState(false);
+    const [{token}, dispatch] = useStateValue();
 
     const emailEl = useRef('poonamdhadwal@gmail.com');
     const passwordEl = useRef('qwerty');
@@ -39,7 +42,11 @@ const AuthPage = () => {
         const login = {
             query: `
                 query {
-                    login(email:"${email}", password:"${password}")
+                    login(email:"${email}", password:"${password}"){
+                        userId
+                        token
+                        tokenExpiration
+                    }
                 }
             `
         };
@@ -50,7 +57,17 @@ const AuthPage = () => {
             headers: { 'Content-Type': 'application/json' }
         })
             .then(res => {
-                console.log(res.data);
+                const {data: {data: {login, errors}}} = res;
+
+                if(errors){
+                    throw new Error("Login Failed");
+                }
+
+                dispatch({
+                    type: 'login',
+                    token: login.token,
+                    userId: login.userId
+                });
             })
             .catch(err => {
                 console.log(err);

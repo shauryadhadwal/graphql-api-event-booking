@@ -26,6 +26,8 @@ const createUser = async ({ userInput: args }) => {
 
 const login = async ({ email, password }) => {
     try {
+        console.log(['LOGIN']);
+        
         const user = await User.findOne({ email: email });
         
         if (!user) {
