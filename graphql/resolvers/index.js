@@ -1,10 +1,7 @@
-// const eventAPI = require('./event');
-// const userAPI = require('./user');
-
-
 const bcrypt = require('bcryptjs')
 const User = require('../../models/user');
 const Event = require('../../models/event');
+const Booking = require('../../models/booking');
 
 // Why use bind?
 // By binding a function, we return a new function which can 
@@ -12,16 +9,38 @@ const Event = require('../../models/event');
 
 const getEventsByIds = async (eventIds) => {
     try {
-        const events = await Event.find({ _id: { $in: eventIds } })
+        const events = await Event.find({ _id: { $in: eventIds } });
+        if (!events) {
+            throw new Error('[GET EVENTS BY IDS] failed!')
+        }
         return events.map(event => {
             return {
                 ...event._doc,
+                date: new Date(event._doc.date).toISOString(),
                 creator: getUserById.bind(this, event._doc.creator)
             }
         });
     } catch (err) {
         console.error(err);
         throw err;
+    }
+}
+
+const getEventById = async (eventId) => {
+    try {
+        const event = await Event.findById(eventId);
+        if (!event) {
+            throw new Error('[GET EVENT] Event not found!');
+        }
+        return {
+            ...event._doc,
+            date: new Date(event._doc.date).toISOString(),
+            creator: getUserById.bind(this, event._doc.creator)
+        }
+
+    } catch (err) {
+        console.error(err);
+        throw new err;
     }
 }
 
@@ -100,6 +119,64 @@ const createEvent = async ({ eventInput: args }) => {
     }
 }
 
+const bookings = async () => {
+    try {
+        const bookings = await Booking.find();
+        return bookings.map(booking => {
+            return {
+                ...booking._doc,
+                createdAt: new Date(booking._doc.createdAt).toISOString(),
+                updatedAt: new Date(booking._doc.updatedAt).toISOString(),
+                user: getUserById.bind(this, booking._doc.user),
+                event: getEventById.bind(this, booking._doc.event)
+            }
+        })
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
+const bookEvent = async ({ eventId }) => {
+    try {
+        const booking = await new Booking({
+            user: '5d1f91b982c2fa2634b52dc5',
+            event: eventId
+        });
+
+        const result = await booking.save();
+
+        return {
+            ...result._doc,
+            createdAt: new Date(result._doc.createdAt).toISOString(),
+            updatedAt: new Date(result._doc.updatedAt).toISOString(),
+            user: getUserById.bind(this, result._doc.user),
+            event: getEventById.bind(this, result._doc.event)
+        }
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+
+}
+const cancelBooking = async ({ bookingId }) => {
+    try {
+        console.log(bookingId);
+        const booking = await Booking.findOne({_id: bookingId}).populate('event');
+        console.log(booking);
+
+        await Booking.deleteOne({_id: bookingId});
+
+        return {
+            ...booking.event._doc,
+            creator: getUserById.bind(this, booking.event._doc.creator)
+        }
+    } catch (err) {
+        console.error(err);
+        throw err;
+    }
+}
+
 const createUser = async ({ userInput: args }) => {
     try {
         const hashedPassword = await bcrypt.hash(args.password, 12);
@@ -124,6 +201,9 @@ const createUser = async ({ userInput: args }) => {
 
 module.exports = {
     events,
+    bookings,
     createEvent,
     createUser,
+    bookEvent,
+    cancelBooking
 }
