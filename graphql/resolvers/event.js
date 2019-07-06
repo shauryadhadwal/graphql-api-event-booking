@@ -12,14 +12,17 @@ const events = async () => {
     }
 }
 
-const createEvent = async ({ eventInput: args }) => {
+const createEvent = async (args, req ) => {
+    if(!req.isAuth){
+        throw new Error('Not Authenticated!');
+    }
     try {
         const eventToSave = new Event({
-            title: args.title,
-            description: args.description,
-            price: +args.price,
-            date: new Date(args.date),
-            creator: '5d1f91b982c2fa2634b52dc5'
+            title: args.eventInput.title,
+            description: args.eventInput.description,
+            price: +args.eventInput.price,
+            date: new Date(args.eventInput.date),
+            creator: req.userId
         });
 
         let tempEvent = {};
@@ -30,7 +33,7 @@ const createEvent = async ({ eventInput: args }) => {
 
         event = transformEvent(event);
 
-        const user = await User.findById('5d1f91b982c2fa2634b52dc5');
+        const user = await User.findById(req.userId);
 
         if (!user) {
             throw new Error('[CREATE EVENT] User not found!')
