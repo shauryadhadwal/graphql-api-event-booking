@@ -7,19 +7,21 @@ const Booking = require('../../models/booking');
 // By binding a function, we return a new function which can 
 // be called later.
 
+const transformEvent = event => {
+    return {
+        ...event._doc,
+        date: new Date(event._doc.date).toISOString(),
+        creator: getUserById.bind(this, event._doc.creator)
+    }
+}
+
 const getEventsByIds = async (eventIds) => {
     try {
         const events = await Event.find({ _id: { $in: eventIds } });
         if (!events) {
             throw new Error('[GET EVENTS BY IDS] failed!')
         }
-        return events.map(event => {
-            return {
-                ...event._doc,
-                date: new Date(event._doc.date).toISOString(),
-                creator: getUserById.bind(this, event._doc.creator)
-            }
-        });
+        return events.map(event => transformEvent(event));
     } catch (err) {
         console.error(err);
         throw err;
@@ -32,11 +34,7 @@ const getEventById = async (eventId) => {
         if (!event) {
             throw new Error('[GET EVENT] Event not found!');
         }
-        return {
-            ...event._doc,
-            date: new Date(event._doc.date).toISOString(),
-            creator: getUserById.bind(this, event._doc.creator)
-        }
+        return transformEvent(event);
 
     } catch (err) {
         console.error(err);
@@ -63,13 +61,7 @@ const getUserById = async (userId) => {
 const events = async () => {
     try {
         const events = await Event.find();
-        return events.map(event => {
-            return {
-                ...event._doc,
-                date: new Date(event._doc.date).toISOString(),
-                creator: getUserById.bind(this, event._doc.creator)
-            }
-        });
+        return events.map(event => transformEvent(event));
     } catch (error) {
         console.error(err);
         throw err;
@@ -92,10 +84,7 @@ const createEvent = async ({ eventInput: args }) => {
 
         console.log('[CREATE EVENT] ', event);
 
-        event = {
-            ...event._doc,
-            creator: getUserById.bind(this, event._doc.creator)
-        }
+        event = transformEvent(event);
 
         const user = await User.findById('5d1f91b982c2fa2634b52dc5');
 
@@ -162,15 +151,13 @@ const bookEvent = async ({ eventId }) => {
 const cancelBooking = async ({ bookingId }) => {
     try {
         console.log(bookingId);
-        const booking = await Booking.findOne({_id: bookingId}).populate('event');
+        const booking = await Booking.findOne({ _id: bookingId }).populate('event');
         console.log(booking);
 
-        await Booking.deleteOne({_id: bookingId});
+        await Booking.deleteOne({ _id: bookingId });
 
-        return {
-            ...booking.event._doc,
-            creator: getUserById.bind(this, booking.event._doc.creator)
-        }
+        return transformEvent(booking.event);
+
     } catch (err) {
         console.error(err);
         throw err;
