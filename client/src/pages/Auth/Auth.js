@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import './Auth.css'
+import './Auth.css';
+import Axios from 'axios';
 
 const AuthPage = () => {
 
     const emailEl = useRef('poonamdhadwal@gmail.com');
     const passwordEl = useRef('qwerty');
 
-
     useEffect(() => {
         emailEl.current.focus();
-    }, [])
+    }, []);
 
     const handleSubmit = (event) => {
         event.preventDefault();
@@ -20,7 +20,26 @@ const AuthPage = () => {
         if (email.trim().length === 0 || password.trim().length === 0)
             return;
 
-        console.log(email, password);
+        const body = {
+            query: `
+                mutation {
+                    createUser(userInput: {email:"${email}", password:"${password}"}){
+                        email
+                        _id
+                    }
+                }
+            `
+        };
+        Axios.post('http://localhost:3000/graphql',JSON.stringify(body), {
+            headers: {'Content-Type': 'application/json'}
+        })
+        .then(res => {
+            console.log(res);
+        })
+        .catch(err => {
+            console.log(err);
+        });
+
     }
 
     return (
