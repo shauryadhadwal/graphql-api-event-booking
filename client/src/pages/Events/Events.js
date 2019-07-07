@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import Axios from 'axios';
 import { useStateValue } from '../../contexts/state-context';
+import EventsList from '../../components/Events/EventsList';
 
 const EventsPage = (props) => {
 
@@ -12,6 +13,12 @@ const EventsPage = (props) => {
         price: '',
         date: ''
     });
+    const [events, setEvents] = useState([]);
+
+    useEffect(() => {
+            getEvents();
+    }, []);
+
     const [{ token }] = useStateValue();
 
     const onChangeHandler = (event) => {
@@ -24,25 +31,21 @@ const EventsPage = (props) => {
 
     const formName = "eventForm";
 
-    const postBody = {
-        query: `
-        mutation{
-            createEvent(eventInput: {title: "${eventForm.title}", description: "${eventForm.description}", price: ${eventForm.price}, date: "${eventForm.date}"}){
-                title
-                creator{
-                    email
-                }
-                date
-                price
-            }
-        }
-        `
-    }
-
     const onSubmitHandler = (event) => {
         event.preventDefault();
         setIsOpen(false);
 
+        const postBody = {
+            query: `
+            mutation{
+                createEvent(eventInput: {title: "${eventForm.title}", description: "${eventForm.description}", price: ${eventForm.price}, date: "${eventForm.date}"}){
+                    _id
+                    title
+                    price
+                }
+            }
+        `
+        }
         //Validate the form
         Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
             {
@@ -62,6 +65,36 @@ const EventsPage = (props) => {
 
     };
 
+    const getEvents = async () => {
+        const postBody = {
+            query: `
+                query {
+                    events{
+                        _id
+                        title
+                        price
+                        creator{
+                            _id
+                        }
+                    }
+                }
+            `
+        }
+
+        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+            {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            }
+        );
+
+        console.log(response)
+        if (!response.data.data.errors) {
+            setEvents(response.data.data.events);
+        }
+    }
+
     return (
         <React.Fragment>
             <h1>Events</h1>
@@ -79,7 +112,7 @@ const EventsPage = (props) => {
                             <Modal.Header closeButton>
                                 <Modal.Title id="contained-modal-title-vcenter">
                                     Create A New Event
-                    </Modal.Title>
+                            </Modal.Title>
                             </Modal.Header>
                             <Modal.Body>
                                 <Form onSubmit={onSubmitHandler} className="Form" id={formName}>
@@ -109,8 +142,13 @@ const EventsPage = (props) => {
                     </React.Fragment>
                     : null
             }
-        </React.Fragment>
 
+            <div>
+                {
+                    events ? <EventsList events={events} /> : 'Loading...'
+                }
+            </div>
+        </React.Fragment>
     )
 }
 
