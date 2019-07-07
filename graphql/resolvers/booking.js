@@ -10,7 +10,7 @@ const bookings = async (args, req) => {
         throw new Error('Not Authenticated!');
     }
     try {
-        const bookings = await Booking.find();
+        const bookings = await Booking.find({user: req.userId});
         return bookings.map(booking => transformBooking(booking));
     } catch (err) {
         console.error(err);
