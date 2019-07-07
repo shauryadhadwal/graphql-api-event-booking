@@ -1,15 +1,25 @@
-body, html {
-  margin: 0;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height:100%;
-  position: absolute;
-  font-family: sans-serif;
+body,
+html {
+    margin: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    font-family: sans-serif;
 }
 
-#root{
-  width: 100%;
-  height: 100%;
-  position: absolute;
+#root {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+}
+
+main {
+    padding: 60px 0;
+    position: absolute;
+    margin: 0 auto;
+    left: 0;
+    right: 0;
+    width: 80%;
 }

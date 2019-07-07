@@ -1,0 +1,14 @@
+.events_header {
+    display: flex;
+    justify-content: space-between;
+}
+
+.events_header .heading-container {
+    font-size: 3rem;
+    font-weight: 700;
+}
+
+.events_header .button-container {
+    text-align: center;
+    padding-top: 14px;
+}

@@ -20,7 +20,13 @@
     margin: 10px 0;
 }
 
+.events_list-item .right-container {
+    min-width: 130px;
+}
+
 .events_ul {
     list-style: none;
     padding: 0;
+    width:100%;
+    min-width: 380px;
 }

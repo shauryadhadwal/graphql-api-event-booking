@@ -1,71 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Modal, Button, Form } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
 import Axios from 'axios';
 import { useStateValue } from '../../contexts/state-context';
 import EventsList from '../../components/Events/EventsList';
+import CreateEvent from '../../components/Events/CreateEvent';
+import EventDetails from '../../components/Events/EventDetails';
+import Spinner from '../../components/Spinner/Spinner';
+import './Events.css';
 
 const EventsPage = (props) => {
 
+    const [{ token, userId }] = useStateValue();
     const [isOpen, setIsOpen] = useState(false);
-    const [eventForm, setEventForm] = useState({
-        title: '',
-        description: '',
-        price: '',
-        date: ''
-    });
     const [events, setEvents] = useState([]);
+    const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+    const [detailsEvent, setDetailsEvent] = useState(null);
 
     useEffect(() => {
-            getEvents();
+        fetchEvents();
     }, []);
 
-    const [{ token }] = useStateValue();
-
-    const onChangeHandler = (event) => {
-        if (!event || !event.target)
-            return;
-        const newState = { ...eventForm };
-        newState[event.target.name] = event.target.value;
-        setEventForm(newState);
-    }
-
-    const formName = "eventForm";
-
-    const onSubmitHandler = (event) => {
-        event.preventDefault();
-        setIsOpen(false);
-
-        const postBody = {
-            query: `
-            mutation{
-                createEvent(eventInput: {title: "${eventForm.title}", description: "${eventForm.description}", price: ${eventForm.price}, date: "${eventForm.date}"}){
-                    _id
-                    title
-                    price
-                }
-            }
-        `
-        }
-        //Validate the form
-        Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                }
-            })
-            .then(res => {
-
-                console.log(res);
-                return res;
-            })
-            .catch(err => {
-                console.log(err);
-            });
-
-    };
-
-    const getEvents = async () => {
+    const fetchEvents = async () => {
         const postBody = {
             query: `
                 query {
@@ -73,6 +28,7 @@ const EventsPage = (props) => {
                         _id
                         title
                         price
+                        date
                         creator{
                             _id
                         }
@@ -89,65 +45,103 @@ const EventsPage = (props) => {
             }
         );
 
-        console.log(response)
         if (!response.data.data.errors) {
             setEvents(response.data.data.events);
         }
     }
 
+    const onCreateEventhandler = async (formState) => {
+        setIsOpen(false);
+
+        const postBody = {
+            query: `
+            mutation{
+                createEvent(eventInput: {title: "${formState.title}", description: "${formState.description}", price: ${formState.price}, date: "${formState.date}"}){
+                    _id
+                    title
+                    price
+                    date
+                }
+            }
+        `
+        }
+        //Validate the form
+        let { data: { data: { createEvent: newEvent } } } = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+            {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            });
+
+        newEvent = {
+            ...newEvent,
+            creator: {
+                _id: userId,
+            }
+        }
+
+        setEvents([
+            ...events,
+            newEvent
+        ])
+    };
+
+    const onHideHandler = () => {
+        setIsOpen(false);
+    }
+
+    const onHideDetailsHandler = () => {
+        setIsDetailsOpen(false);
+        setDetailsEvent(null);
+    }
+
+    const onDetailsClickHandler = (event) => {
+        setDetailsEvent(event);
+        setIsDetailsOpen(true);
+    }
+
+    const onBookEventHandler = async (eventId) => {
+        console.log(eventId);
+        const postBody = {
+            query: `
+            mutation{
+                bookEvent(eventId: "${eventId}"){
+                    _id
+                }
+            }
+        `
+        };
+        try {
+            let { data: { data: { bookEvent: booking } } } = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+                {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                });
+
+        console.log(booking);
+
+        } catch (error) {
+            console.error('[Book Event]');
+        }
+    }
+
     return (
         <React.Fragment>
-            <h1>Events</h1>
-            {
-                token ?
-                    <React.Fragment>
-
-                        <Button onClick={() => setIsOpen(true)}>Create</Button>
-                        <Modal
-                            show={isOpen}
-                            onHide={() => setIsOpen(false)}
-                            size="lg"
-                            aria-labelledby="contained-modal-title-vcenter"
-                            centered>
-                            <Modal.Header closeButton>
-                                <Modal.Title id="contained-modal-title-vcenter">
-                                    Create A New Event
-                            </Modal.Title>
-                            </Modal.Header>
-                            <Modal.Body>
-                                <Form onSubmit={onSubmitHandler} className="Form" id={formName}>
-                                    <Form.Group controlId="title">
-                                        <Form.Label>Title</Form.Label>
-                                        <Form.Control name="title" type="text" required onChange={onChangeHandler} />
-                                    </Form.Group>
-                                    <Form.Group controlId="description">
-                                        <Form.Label>Description</Form.Label>
-                                        <Form.Control name="description" type="text" required onChange={onChangeHandler} />
-                                    </Form.Group>
-                                    <Form.Group controlId="price">
-                                        <Form.Label>Price</Form.Label>
-                                        <Form.Control name="price" type="number" required onChange={onChangeHandler} />
-                                    </Form.Group>
-                                    <Form.Group controlId="date">
-                                        <Form.Label>Date</Form.Label>
-                                        <Form.Control name="date" type="date" required onChange={onChangeHandler} />
-                                    </Form.Group>
-                                </Form>
-                            </Modal.Body>
-                            <Modal.Footer>
-                                <Button onClick={() => setIsOpen(false)}>Close</Button>
-                                <Button form={formName} type="submit">Submit</Button>
-                            </Modal.Footer>
-                        </Modal>
-                    </React.Fragment>
-                    : null
-            }
-
-            <div>
-                {
-                    events ? <EventsList events={events} /> : 'Loading...'
-                }
+            <div className="events_header">
+                <div className="heading-container">
+                    Events
+                </div>
+                <div className="button-container">
+                    {token && <Button size="lg" onClick={() => setIsOpen(true)}>Create</Button>}
+                </div>
             </div>
+            {token && <CreateEvent onSubmit={onCreateEventhandler} onHide={onHideHandler} isOpen={isOpen} />}
+            {events.length > 0 ? <EventsList events={events} onDetailsClick={onDetailsClickHandler} /> : <Spinner />}
+            {detailsEvent && <EventDetails onHide={onHideDetailsHandler} isOpen={isDetailsOpen} event={detailsEvent} userId={userId} onBookEvent={onBookEventHandler} />}
+
         </React.Fragment>
     )
 }

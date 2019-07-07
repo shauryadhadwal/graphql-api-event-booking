@@ -7,11 +7,9 @@ const EventsList = (props) => {
 
     const [{userId}] =  useStateValue();
 
-    console.log(userId);
-
     const list = props.events.map(event => {
         return (
-            <EventItem key={event._id} event={event} userId={userId}/>
+            <EventItem key={event._id} event={event} userId={userId} onDetailsClick={props.onDetailsClick}/>
         )
     });
 
