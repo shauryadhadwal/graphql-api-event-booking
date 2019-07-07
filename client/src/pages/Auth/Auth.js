@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Button, Container, Row, Col, Tabs, Tab } from 'react-bootstrap';
+import { Form, Button} from 'react-bootstrap';
 import Axios from 'axios';
 import { useStateValue } from '../../contexts/state-context';
 
@@ -8,13 +8,19 @@ import './Auth.css';
 const AuthPage = () => {
 
     const [isSignup, setIsSignup] = useState(false);
-    const [{token}, dispatch] = useStateValue();
+    const [{ }, dispatch] = useStateValue();
 
     const emailEl = useRef('poonamdhadwal@gmail.com');
     const passwordEl = useRef('qwerty');
     const confirmPasswordEl = useRef('qwerty');
 
     useEffect(() => {
+        // On load clean up token
+
+        dispatch({
+            type: 'logout',
+        })
+
         emailEl.current.focus();
         emailEl.current.value = 'shauryadhadwal@gmail.com';
         passwordEl.current.value = 'qwerty';
@@ -57,9 +63,9 @@ const AuthPage = () => {
             headers: { 'Content-Type': 'application/json' }
         })
             .then(res => {
-                const {data: {data: {login, errors}}} = res;
+                const { data: { data: { login, errors } } } = res;
 
-                if(errors){
+                if (errors) {
                     throw new Error("Login Failed");
                 }
 

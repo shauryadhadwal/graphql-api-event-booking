@@ -1,4 +1,5 @@
 const Event = require('../../models/event');
+const User = require('../../models/user');
 const { transformEvent } = require('./merge');
 
 
@@ -13,6 +14,7 @@ const events = async () => {
 }
 
 const createEvent = async (args, req ) => {
+    console.log('[CREATE EVENT]');
     if(!req.isAuth){
         throw new Error('Not Authenticated!');
     }
@@ -28,8 +30,6 @@ const createEvent = async (args, req ) => {
         let tempEvent = {};
 
         let event = await eventToSave.save();
-
-        console.log('[CREATE EVENT] ', event);
 
         event = transformEvent(event);
 

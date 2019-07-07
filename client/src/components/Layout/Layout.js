@@ -5,7 +5,7 @@ const Layout = (props) => {
     return (
         <React.Fragment>
             <Navbar />
-            <main>
+            <main style={{width:"100%", position:"absolute", padding: "60px 100px"}}>
                 {props.children}
             </main>
         </React.Fragment>

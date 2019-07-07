@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
+import React, {} from 'react';
 
 const BookingsPage = () => {
     return (
-        <h1>Auth Page</h1>
+        <h1>Bookings Page</h1>
     )
 }
 

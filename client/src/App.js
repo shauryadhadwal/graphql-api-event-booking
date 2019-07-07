@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Redirect, Switch } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { StateProvider } from './contexts/state-context';
 import Layout from './components/Layout/Layout';
