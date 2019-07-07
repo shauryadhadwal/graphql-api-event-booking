@@ -1,0 +1,32 @@
+.List-Container {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+}
+
+.bookings_list-item {
+    display: box;
+    width: 100%;
+    box-shadow: 2px 2px 5px #bbb;
+    /* height: 60px; */
+    margin: 20px 0;
+    padding: 10px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+}
+
+.bookings_list-item p {
+    margin: 10px 0;
+}
+
+.bookings_list-item .right-container {
+    min-width: 130px;
+}
+
+.bookings_ul {
+    list-style: none;
+    padding: 0;
+    width:100%;
+    min-width: 380px;
+}

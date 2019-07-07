@@ -11,7 +11,7 @@ const bookings = async (args, req) => {
     }
     try {
         const bookings = await Booking.find();
-        return bookings.map(booking => transformBooking(booking))
+        return bookings.map(booking => transformBooking(booking));
     } catch (err) {
         console.error(err);
         throw err;
@@ -42,6 +42,7 @@ const bookEvent = async (args, req) => {
 }
 const cancelBooking = async (args, req) => {
     log.event('CANCEL BOOKING');
+    log.data(args.bookingId);
 
     if(!req.isAuth){
         throw new Error('Not Authenticated!');

@@ -12,8 +12,8 @@ const NavigationBar = () => {
         <Navbar bg="dark" variant="dark" fixed="top">
             <Navbar.Brand>What's New?</Navbar.Brand>
             <Nav className="mr-auto" variant="pills">
-                <NavLink className="NavLink" to="/bookings">Bookings</NavLink>
                 <NavLink className="NavLink" to="/events">Events</NavLink>
+                {token && <NavLink className="NavLink" to="/bookings">Bookings</NavLink>}
             </Nav>
             <Form inline>
                 {token ?
