@@ -1,5 +1,19 @@
+const DataLoader = require('dataLoader');
 const Event = require('../../models/event');
 const User = require('../../models/user');
+const log = require('../../helpers/logger');
+
+const EventLoader = new DataLoader((eventIds) => {
+    log.event('EVENT LOADER');
+    log.data(eventIds);
+    return Event.find({ _id: { $in: eventIds } });
+});
+
+const UserLoader = new DataLoader((userIds) => {
+    log.event('USER LOADER');
+    log.data(userIds);
+    return User.find({_id: {$in: userIds}});
+});
 
 const transformBooking = booking => {
     return {
@@ -21,7 +35,7 @@ const transformEvent = event => {
 
 const getEventsByIds = async (eventIds) => {
     try {
-        const events = await Event.find({ _id: { $in: eventIds } });
+        const events = await EventLoader.loadMany(eventIds);
         if (!events) {
             throw new Error('[GET EVENTS BY IDS] failed!')
         }
@@ -34,11 +48,12 @@ const getEventsByIds = async (eventIds) => {
 
 const getEventById = async (eventId) => {
     try {
-        const event = await Event.findById(eventId);
+        const event = await EventLoader.load(eventId.toString());
+
         if (!event) {
             throw new Error('[GET EVENT] Event not found!');
         }
-        return transformEvent(event);
+        return event;
 
     } catch (err) {
         console.error(err);
@@ -48,13 +63,13 @@ const getEventById = async (eventId) => {
 
 const getUserById = async (userId) => {
     try {
-        const user = await User.findById(userId);
+        const user = await UserLoader.load(userId.toString());
         if (!user)
             throw new Error('[GET USER BY ID] failed');
         return {
             ...user._doc,
             password: null,
-            createdEvents: getEventsByIds.bind(this, user._doc.createdEvents)
+            createdEvents: EventLoader.loadMany.bind(this, user._doc.createdEvents)
         };
     } catch (err) {
         console.error(err);

@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
-import './App.css';
 import { StateProvider } from './contexts/state-context';
 import Layout from './components/Layout/Layout';
 import Routes from './Routes';
+import './App.css';
 
 const App = () => {
 

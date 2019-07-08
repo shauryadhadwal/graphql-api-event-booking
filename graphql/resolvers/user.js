@@ -5,7 +5,6 @@ const log = require('../../helpers/logger');
 
 const createUser = async ({ userInput: args }) => {
     log.event('CREATE USER');
-
     try {
         const hashedPassword = await bcrypt.hash(args.password, 12);
         const user = new User({
@@ -50,7 +49,8 @@ const login = async ({ email, password }) => {
         }
 
         const token = jwt.sign(payload, process.env.JWT_KEY, {expiresIn: '1h'});
-        
+        log.event('TOKEN GENERATED');
+        log.data(`USERID: ${user.id}`);
         return { userId: user.id, token: token, tokenExpiration: 1}
 
     } catch (err) {
