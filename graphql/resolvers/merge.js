@@ -6,7 +6,7 @@ const log = require('../../helpers/logger');
 const EventLoader = new DataLoader((eventIds) => {
     log.event('EVENT LOADER');
     log.data(eventIds);
-    return Event.find({ _id: { $in: eventIds } });
+    return getEventsByIds(eventIds);
 });
 
 const UserLoader = new DataLoader((userIds) => {
@@ -35,7 +35,7 @@ const transformEvent = event => {
 
 const getEventsByIds = async (eventIds) => {
     try {
-        const events = await EventLoader.loadMany(eventIds);
+        const events = await Event.find({_id: {$in: eventIds}});
         if (!events) {
             throw new Error('[GET EVENTS BY IDS] failed!')
         }
@@ -64,12 +64,13 @@ const getEventById = async (eventId) => {
 const getUserById = async (userId) => {
     try {
         const user = await UserLoader.load(userId.toString());
+        console.log(user._id, user.createdEvents);
         if (!user)
             throw new Error('[GET USER BY ID] failed');
         return {
             ...user._doc,
             password: null,
-            createdEvents: EventLoader.loadMany.bind(this, user._doc.createdEvents)
+            createdEvents: () => EventLoader.loadMany(user._doc.createdEvents)
         };
     } catch (err) {
         console.error(err);

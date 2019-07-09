@@ -1,9 +1,10 @@
 const Event = require('../../models/event');
 const User = require('../../models/user');
 const { transformEvent } = require('./merge');
-
+const log = require('../../helpers/logger');
 
 const events = async () => {
+    log.event('FETCH EVENTS');
     try {
         const events = await Event.find();
         return events.map(event => transformEvent(event));
@@ -14,7 +15,7 @@ const events = async () => {
 }
 
 const createEvent = async (args, req ) => {
-    console.log('[CREATE EVENT]');
+    log.event('CREATE EVENT');
     if(!req.isAuth){
         throw new Error('Not Authenticated!');
     }
@@ -27,8 +28,6 @@ const createEvent = async (args, req ) => {
             creator: req.userId
         });
 
-        let tempEvent = {};
-
         let event = await eventToSave.save();
 
         event = transformEvent(event);
@@ -39,7 +38,7 @@ const createEvent = async (args, req ) => {
             throw new Error('[CREATE EVENT] User not found!')
         }
 
-        user.createdEvents.push(tempEvent._id);
+        user.createdEvents.push(event._id);
 
         const updatedUser = await user.save()
 
@@ -47,6 +46,7 @@ const createEvent = async (args, req ) => {
             throw new Error('[CREATE EVENT] Could not update user');
         }
 
+        log.data(`EVENT: ${event.title} USER: ${user.email}`);
         return event;
 
     } catch (err) {

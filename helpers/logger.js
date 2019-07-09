@@ -8,5 +8,7 @@ logger.event = (text) => {
 logger.data = (text) => {
     log(chalk.black.bgWhite(" "+text+" "));
 }
-
+logger.error = (text) => {
+    log(chalk.white.bgRed(" "+text+" "));
+}
 module.exports = logger;

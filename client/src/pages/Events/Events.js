@@ -31,6 +31,7 @@ const EventsPage = (props) => {
                         date
                         creator{
                             _id
+                            email
                         }
                     }
                 }

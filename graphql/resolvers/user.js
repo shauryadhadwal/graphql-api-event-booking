@@ -15,8 +15,11 @@ const createUser = async ({ userInput: args }) => {
         const savedUser = await user.save();
 
         if (!savedUser) {
+            log.error('Failed to create new user: ' + args.email);
             throw new Error('[CREATE USER] Could not save user!');
         }
+
+        log.data('New User: ' + savedUser.email);
 
         return { ...savedUser._doc, password: null };
 
@@ -34,12 +37,14 @@ const login = async ({ email, password }) => {
         const user = await User.findOne({ email: email });
         
         if (!user) {
+            log.error('User does not exist:' + email);
             throw new Error('The credentials do not match');
         }
         
         const isValid = await bcrypt.compare(password, user.password);
         
         if (!isValid) {
+            log.error('Password does not match:' + email);
             throw new Error('The credentials do not match');
         }
 
