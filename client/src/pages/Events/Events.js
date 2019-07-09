@@ -21,7 +21,7 @@ const EventsPage = (props) => {
     }, []);
 
     const fetchEvents = async () => {
-        const postBody = {
+        const requestBody = {
             query: `
                 query {
                     events{
@@ -38,7 +38,7 @@ const EventsPage = (props) => {
             `
         }
 
-        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(requestBody),
             {
                 headers: {
                     'Content-Type': 'application/json'
@@ -54,20 +54,26 @@ const EventsPage = (props) => {
     const onCreateEventhandler = async (formState) => {
         setIsOpen(false);
 
-        const postBody = {
+        const requestBody = {
             query: `
-            mutation{
-                createEvent(eventInput: {title: "${formState.title}", description: "${formState.description}", price: ${formState.price}, date: "${formState.date}"}){
+            mutation CreateEvent($title: String!, $description: String!, $price: Float!, $date: String!){
+                createEvent(eventInput: {title: $title, description: $description, price: $price, date: $date}){
                     _id
                     title
                     price
                     date
                 }
             }
-        `
+        `,
+            variables: {
+                title: formState.title,
+                description: formState.description,
+                price: parseFloat(formState.price),
+                date: formState.date
+            }
         }
         //Validate the form
-        let { data: { data: { createEvent: newEvent } } } = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+        let { data: { data: { createEvent: newEvent } } } = await Axios.post("http://localhost:3000/graphql", JSON.stringify(requestBody),
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -104,7 +110,7 @@ const EventsPage = (props) => {
 
     const onBookEventHandler = async (eventId) => {
         console.log(eventId);
-        const postBody = {
+        const requestBody = {
             query: `
             mutation{
                 bookEvent(eventId: "${eventId}"){
@@ -114,7 +120,7 @@ const EventsPage = (props) => {
         `
         };
         try {
-            let { data: { data: { bookEvent: booking } } } = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+            let { data: { data: { bookEvent: booking } } } = await Axios.post("http://localhost:3000/graphql", JSON.stringify(requestBody),
                 {
                     headers: {
                         'Content-Type': 'application/json',
@@ -122,7 +128,7 @@ const EventsPage = (props) => {
                     }
                 });
 
-        console.log(booking);
+            console.log(booking);
 
         } catch (error) {
             console.error('[Book Event]');

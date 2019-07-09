@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import Button from 'react-bootstrap/Button';
 import Axios from 'axios';
 import { useStateValue } from '../../contexts/state-context';
 import Spinner from '../../components/Spinner/Spinner';
@@ -8,7 +7,7 @@ import './Bookings.css';
 
 const BookingsPage = () => {
 
-    const [{ token, userId }] = useStateValue();
+    const [{ token }] = useStateValue();
     const [bookings, setBookings] = useState([]);
 
     useEffect(() => {
@@ -16,7 +15,7 @@ const BookingsPage = () => {
     }, []);
 
     const fetchBookings = async () => {
-        const postBody = {
+        const requestBody = {
             query: `
                 query {
                     bookings{
@@ -33,7 +32,7 @@ const BookingsPage = () => {
             `
         }
 
-        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(requestBody),
             {
                 headers: {
                     'Content-Type': 'application/json',
@@ -52,17 +51,20 @@ const BookingsPage = () => {
 
     const onCancelBookingHandler = async (bookingId) => {
         console.log(bookingId)
-        const postBody = {
+        const requestBody = {
             query: `
-                mutation {
-                    cancelBooking(bookingId: "${bookingId}"){
+                mutation CancelBooking($bookingId: ID!){
+                    cancelBooking(bookingId: $bookingId){
                         title
                     }
                 }
-            `
+            `,
+            variables: {
+                bookingId: bookingId
+            }
         }
 
-        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(postBody),
+        const response = await Axios.post("http://localhost:3000/graphql", JSON.stringify(requestBody),
             {
                 headers: {
                     'Content-Type': 'application/json',

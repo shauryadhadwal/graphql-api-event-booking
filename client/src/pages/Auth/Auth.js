@@ -8,7 +8,7 @@ import './Auth.css';
 const AuthPage = () => {
 
     const [isSignup, setIsSignup] = useState(false);
-    const [{ }, dispatch] = useStateValue();
+    const [{}, dispatch] = useStateValue();
 
     const emailEl = useRef('poonamdhadwal@gmail.com');
     const passwordEl = useRef('qwerty');
@@ -16,7 +16,6 @@ const AuthPage = () => {
 
     useEffect(() => {
         // On load clean up token
-
         dispatch({
             type: 'logout',
         })
@@ -36,25 +35,33 @@ const AuthPage = () => {
 
         const signUp = {
             query: `
-                mutation {
-                    createUser(userInput: {email:"${email}", password:"${password}"}){
+                mutation CreateUser($email: String!, $password: String!){
+                    createUser(userInput: {email: $email, password: $password}){
                         email
                         _id
                     }
                 }
-            `
+            `,
+            variables: {
+                email: email,
+                password: password
+            }
         };
 
         const login = {
             query: `
-                query {
-                    login(email:"${email}", password:"${password}"){
+                query Login($email: String!, $password: String!){
+                    login(email: $email, password: $password){
                         userId
                         token
                         tokenExpiration
                     }
                 }
-            `
+            `,
+            variables: {
+                email: email,
+                password: password
+            }
         };
 
         const body = isSignup ? signUp : login;
