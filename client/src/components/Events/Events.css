@@ -4,22 +4,6 @@
     width: 60%;
 }
 
-.events_list-item {
-    display: box;
-    width: 100%;
-    box-shadow: 2px 2px 5px #bbb;
-    /* height: 60px; */
-    margin: 20px 0;
-    padding: 10px;
-    box-sizing: border-box;
-    display: flex;
-    justify-content: space-between;
-}
-
-.events_list-item p {
-    margin: 10px 0;
-}
-
 .events_list-item .right-container {
     min-width: 130px;
 }

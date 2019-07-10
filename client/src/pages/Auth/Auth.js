@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Form, Button} from 'react-bootstrap';
+import { Form, Button } from 'react-bootstrap';
 import Axios from 'axios';
 import { useStateValue } from '../../contexts/state-context';
 
@@ -8,7 +8,7 @@ import './Auth.css';
 const AuthPage = () => {
 
     const [isSignup, setIsSignup] = useState(false);
-    const [{}, dispatch] = useStateValue();
+    const [{ }, dispatch] = useStateValue();
 
     const emailEl = useRef('poonamdhadwal@gmail.com');
     const passwordEl = useRef('qwerty');
@@ -25,7 +25,7 @@ const AuthPage = () => {
         passwordEl.current.value = 'qwerty';
     }, []);
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const email = emailEl.current.value;
         const password = passwordEl.current.value;
@@ -33,7 +33,7 @@ const AuthPage = () => {
         if (email.trim().length === 0 || password.trim().length === 0)
             return;
 
-        const signUp = {
+        const signUpRequestBody = {
             query: `
                 mutation CreateUser($email: String!, $password: String!){
                     createUser(userInput: {email: $email, password: $password}){
@@ -48,7 +48,7 @@ const AuthPage = () => {
             }
         };
 
-        const login = {
+        const loginRequestBody = {
             query: `
                 query Login($email: String!, $password: String!){
                     login(email: $email, password: $password){
@@ -64,27 +64,30 @@ const AuthPage = () => {
             }
         };
 
-        const body = isSignup ? signUp : login;
+        const body = isSignup ? signUpRequestBody : loginRequestBody;
 
-        Axios.post('http://localhost:3000/graphql', JSON.stringify(body), {
-            headers: { 'Content-Type': 'application/json' }
-        })
-            .then(res => {
-                const { data: { data: { login, errors } } } = res;
-
-                if (errors) {
-                    throw new Error("Login Failed");
-                }
-
-                dispatch({
-                    type: 'login',
-                    token: login.token,
-                    userId: login.userId
-                });
-            })
-            .catch(err => {
-                console.log(err);
+        try {
+            
+            const response = await Axios.post('http://localhost:3000/graphql', JSON.stringify(body), {
+                headers: { 'Content-Type': 'application/json' }
             });
+
+            const { data: { data: { login, errors } } } = response;
+
+            if (errors) {
+                throw new Error("Login Failed");
+            }
+
+            dispatch({
+                type: 'login',
+                token: login.token,
+                userId: login.userId,
+                email: email
+            });
+            
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     return (

@@ -14,12 +14,3 @@ html {
     height: 100%;
     position: absolute;
 }
-
-main {
-    padding: 60px 0;
-    position: absolute;
-    margin: 0 auto;
-    left: 0;
-    right: 0;
-    width: 80%;
-}

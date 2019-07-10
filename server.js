@@ -4,13 +4,13 @@ const graphqlHttp = require('express-graphql');
 const mongoose = require('mongoose');
 const isAuthMiddleware = require('./middleware/is-auth');
 const cors = require('cors');
-
 const app = express();
 app.use(bodyParser.json());
 
 app.use(cors());
 app.use(isAuthMiddleware);
 
+const port = process.env.PORT || 3000;
 const graphQlSchema = require('./graphql/schemas/index');
 const graphQlResolvers = require('./graphql/resolvers/index');
 
@@ -24,7 +24,7 @@ const mongoConnectionUrl = `mongodb+srv://${process.env.MONGO_USER}:${process.en
 
 mongoose.connect(mongoConnectionUrl, { useNewUrlParser: true })
     .then(() => {
-        app.listen(3000, () => { console.log('Listening on 3000') });
+        app.listen(port, () => { console.log(`Server started on port ${port}`) });
     })
     .catch(err => {
         console.error(err);

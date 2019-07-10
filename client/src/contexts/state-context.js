@@ -3,6 +3,7 @@ import React, { createContext, useContext, useReducer } from 'react';
 export const StateContext = createContext({
 		token: null,
 		userId: null,
+        email: null,
 	});
 
 export const StateProvider = ({ reducer, initialState, children }) => (

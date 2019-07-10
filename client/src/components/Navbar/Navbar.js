@@ -6,7 +6,7 @@ import './Navbar.css';
 
 const NavigationBar = () => {
 
-    const [{ token }] = useStateValue();
+    const [{ token, email }] = useStateValue();
 
     return (
         <Navbar bg="dark" variant="dark" fixed="top">
@@ -16,7 +16,11 @@ const NavigationBar = () => {
                 {token && <NavLink className="NavLink" to="/bookings">Bookings</NavLink>}
             </Nav>
             <Form inline>
-                {token ?
+                {
+                    email && <Nav.Link>{email}</Nav.Link>
+                }
+                {
+                    token ?
                     <NavLink to="/logout">Logout</NavLink>
                     :
                     <NavLink to="/auth">Login</NavLink>

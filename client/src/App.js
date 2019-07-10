@@ -18,7 +18,8 @@ const App = () => {
 				return {
 					...state,
 					token: action.token,
-					userId: action.userId
+					userId: action.userId,
+					email: action.email
 				};
 			
 			case 'logout':
